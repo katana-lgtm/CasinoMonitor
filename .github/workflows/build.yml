@@ -35,9 +35,11 @@ jobs:
             sed -i 's/FAIL_ON_PROJECT_REPOS/PREFER_PROJECT/g' settings.gradle.kts
           fi
           
-          # Включаем поддержку AndroidX и Jetifier в gradle.properties
           echo "android.useAndroidX=true" >> gradle.properties
           echo "android.enableJetifier=true" >> gradle.properties
+          
+          # Принудительно задаем совместимую версию NDK для компиляции старого C++ кода
+          echo "android.ndkVersion=23.1.7779620" >> gradle.properties
           
           gradle assembleDebug --stacktrace
 
