@@ -14,12 +14,21 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Unzip and Build Project
+      - name: Unzip, Fix and Build
         run: |
           ZIP_FILE=$(find . -maxdepth 1 -name "*.zip" -print -quit)
           mkdir -p project_src
           unzip -q "$ZIP_FILE" -d project_src
           cd project_src
+          
+          # Исправляем режим репозиториев Gradle для предотвращения конфликта
+          if [ -f "settings.gradle" ]; then
+            sed -i 's/FAIL_ON_PROJECT_REPOS/PREFER_PROJECT/g' settings.gradle
+          fi
+          if [ -f "settings.gradle.kts" ]; then
+            sed -i 's/FAIL_ON_PROJECT_REPOS/PREFER_PROJECT/g' settings.gradle.kts
+          fi
+          
           gradle assembleDebug
 
       - name: Upload APK Artifact
