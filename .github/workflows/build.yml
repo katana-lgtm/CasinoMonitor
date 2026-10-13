@@ -16,32 +16,10 @@ jobs:
 
       - name: Unzip and Build Project
         run: |
-          echo "Ищем ZIP-архив..."
           ZIP_FILE=$(find . -maxdepth 1 -name "*.zip" -print -quit)
-          if [ -z "$ZIP_FILE" ]; then
-            echo "Ошибка: ZIP-архив не найден!"
-            exit 1
-          fi
-          
-          echo "Распаковываем архив..."
-          mkdir -p extracted_project
-          unzip -q "$ZIP_FILE" -d extracted_project
-          
-          echo "Содержимое распакованной папки:"
-          ls -la extracted_project
-          
-          echo "Ищем файл сборки Gradle..."
-          BUILD_FILE=$(find extracted_project -name "build.gradle" -o -name "build.gradle.kts" -print -quit)
-          
-          if [ -z "$BUILD_FILE" ]; then
-            echo "Ошибка: файлы сборки Gradle не найдены!"
-            exit 1
-          fi
-          
-          PROJECT_DIR=$(dirname "$BUILD_FILE")
-          echo "Проект найден в директории: $PROJECT_DIR"
-          cd "$PROJECT_DIR"
-          
+          mkdir -p project_src
+          unzip -q "$ZIP_FILE" -d project_src
+          cd project_src
           gradle assembleDebug
 
       - name: Upload APK Artifact
