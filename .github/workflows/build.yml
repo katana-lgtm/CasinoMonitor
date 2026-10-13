@@ -14,21 +14,17 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Unzip, Fix and Build
+      - name: Setup Gradle 8.5
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.5'
+
+      - name: Unzip and Build Project
         run: |
           ZIP_FILE=$(find . -maxdepth 1 -name "*.zip" -print -quit)
           mkdir -p project_src
           unzip -q "$ZIP_FILE" -d project_src
           cd project_src
-          
-          # Исправляем режим репозиториев Gradle для предотвращения конфликта
-          if [ -f "settings.gradle" ]; then
-            sed -i 's/FAIL_ON_PROJECT_REPOS/PREFER_PROJECT/g' settings.gradle
-          fi
-          if [ -f "settings.gradle.kts" ]; then
-            sed -i 's/FAIL_ON_PROJECT_REPOS/PREFER_PROJECT/g' settings.gradle.kts
-          fi
-          
           gradle assembleDebug
 
       - name: Upload APK Artifact
@@ -36,3 +32,4 @@ jobs:
         with:
           name: app-debug
           path: '**/app/build/outputs/apk/debug/app-debug.apk'
+          
