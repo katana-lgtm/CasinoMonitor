@@ -35,7 +35,14 @@ jobs:
             sed -i 's/FAIL_ON_PROJECT_REPOS/PREFER_PROJECT/g' settings.gradle.kts
           fi
           
-          gradle assembleDebug --stacktrace
+          # Запуск сборки с авто-выводом текста ошибки в случае сбоя
+          gradle assembleDebug > build_log.txt 2>&1 || {
+            echo "=================================================="
+            echo "❌ СБОРКА ПРОВАЛИЛАСЬ. СУТЬ ОШИБКИ:"
+            echo "=================================================="
+            grep -A 20 "What went wrong" build_log.txt || tail -n 50 build_log.txt
+            exit 1
+          }
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
