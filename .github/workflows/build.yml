@@ -14,20 +14,30 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Find and Build Project
+      - name: Unzip and Build Project
         run: |
-          echo "Содержимое корневой папки:"
-          ls -la
+          echo "Ищем ZIP-архив в корне..."
+          ZIP_FILE=$(find . -maxdepth 1 -name "*.zip" -print -quit)
+          if [ -z "$ZIP_FILE" ]; then
+            echo "Ошибка: ZIP-архив не найден!"
+            exit 1
+          fi
           
+          echo "Распаковываем архив: $ZIP_FILE"
+          unzip -q "$ZIP_FILE" -d extracted_project
+          cd extracted_project
+          
+          # Поиск файла сборки внутри распакованной папки
           BUILD_FILE=$(find . -name "build.gradle" -o -name "build.gradle.kts" -not -path "*/.*" -print -quit)
           if [ -z "$BUILD_FILE" ]; then
-            echo "Ошибка: файлы сборки Gradle не найдены в репозитории!"
+            echo "Ошибка: файлы сборки Gradle не найдены внутри архива!"
             exit 1
           fi
           
           PROJECT_DIR=$(dirname "$BUILD_FILE")
-          echo "Проект обнаружен в директории: $PROJECT_DIR"
+          echo "Переходим в папку проекта: $PROJECT_DIR"
           cd "$PROJECT_DIR"
+          
           gradle assembleDebug
 
       - name: Upload APK Artifact
