@@ -26,7 +26,6 @@ jobs:
           unzip -q "$ZIP_FILE" -d project_src
           cd project_src
           
-          # Заменяем режим репозиториев на PREFER_PROJECT
           if [ -f "settings.gradle" ]; then
             sed -i 's/PREFER_SETTINGS/PREFER_PROJECT/g' settings.gradle
             sed -i 's/FAIL_ON_PROJECT_REPOS/PREFER_PROJECT/g' settings.gradle
@@ -36,7 +35,7 @@ jobs:
             sed -i 's/FAIL_ON_PROJECT_REPOS/PREFER_PROJECT/g' settings.gradle.kts
           fi
           
-          gradle assembleDebug
+          gradle assembleDebug --stacktrace
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
