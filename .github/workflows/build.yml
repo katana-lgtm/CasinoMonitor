@@ -16,26 +16,30 @@ jobs:
 
       - name: Unzip and Build Project
         run: |
-          echo "Ищем ZIP-архив в корне..."
+          echo "Ищем ZIP-архив..."
           ZIP_FILE=$(find . -maxdepth 1 -name "*.zip" -print -quit)
           if [ -z "$ZIP_FILE" ]; then
             echo "Ошибка: ZIP-архив не найден!"
             exit 1
           fi
           
-          echo "Распаковываем архив: $ZIP_FILE"
+          echo "Распаковываем архив..."
+          mkdir -p extracted_project
           unzip -q "$ZIP_FILE" -d extracted_project
-          cd extracted_project
           
-          # Поиск файла сборки внутри распакованной папки
-          BUILD_FILE=$(find . -name "build.gradle" -o -name "build.gradle.kts" -not -path "*/.*" -print -quit)
+          echo "Содержимое распакованной папки:"
+          ls -la extracted_project
+          
+          echo "Ищем файл сборки Gradle..."
+          BUILD_FILE=$(find extracted_project -name "build.gradle" -o -name "build.gradle.kts" -print -quit)
+          
           if [ -z "$BUILD_FILE" ]; then
-            echo "Ошибка: файлы сборки Gradle не найдены внутри архива!"
+            echo "Ошибка: файлы сборки Gradle не найдены!"
             exit 1
           fi
           
           PROJECT_DIR=$(dirname "$BUILD_FILE")
-          echo "Переходим в папку проекта: $PROJECT_DIR"
+          echo "Проект найден в директории: $PROJECT_DIR"
           cd "$PROJECT_DIR"
           
           gradle assembleDebug
